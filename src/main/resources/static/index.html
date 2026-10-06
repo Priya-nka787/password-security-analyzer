@@ -1,0 +1,2037 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Password Security Analyzer</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    #12304a 0,
+                    transparent 35%
+                ),
+                radial-gradient(
+                    circle at bottom left,
+                    #10233d 0,
+                    transparent 35%
+                ),
+                #050d18;
+
+            color: #e5eef8;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1150px;
+            margin: auto;
+            padding: 45px 0;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 34px;
+            color: #38bdf8;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-top: 10px;
+        }
+
+        /* =========================
+           MAIN SECTION
+        ========================= */
+
+        .main {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: rgba(13, 27, 42, 0.92);
+            border: 1px solid #1d4058;
+            border-radius: 20px;
+            padding: 27px;
+
+            box-shadow:
+                0 15px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+
+        /* =========================
+           PASSWORD INPUT
+        ========================= */
+
+        .password-box {
+            display: flex;
+
+            background: #07111f;
+
+            border: 1px solid #334155;
+            border-radius: 11px;
+
+            overflow: hidden;
+
+            transition: 0.3s;
+        }
+
+        .password-box:focus-within {
+            border-color: #38bdf8;
+
+            box-shadow:
+                0 0 15px rgba(56, 189, 248, 0.15);
+        }
+
+        .password-box input {
+            flex: 1;
+
+            border: none;
+            outline: none;
+
+            background: transparent;
+
+            color: white;
+
+            padding: 15px;
+
+            font-size: 16px;
+        }
+
+        .password-box button {
+            border: none;
+
+            background: transparent;
+
+            color: #38bdf8;
+
+            font-size: 19px;
+
+            padding: 0 17px;
+
+            cursor: pointer;
+        }
+
+        /* =========================
+           ANALYZE BUTTON
+        ========================= */
+
+        .analyze-btn {
+            width: 100%;
+
+            margin-top: 18px;
+
+            padding: 15px;
+
+            border: none;
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #0284c7,
+                    #06b6d4
+                );
+
+            color: white;
+
+            font-size: 16px;
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.3s;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 8px 22px rgba(
+                    6,
+                    182,
+                    212,
+                    0.25
+                );
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+
+            cursor: not-allowed;
+
+            transform: none;
+        }
+
+        /* =========================
+           REQUIREMENTS
+        ========================= */
+
+        .requirements {
+            margin-top: 28px;
+        }
+
+        .requirement-grid {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 10px;
+        }
+
+        .requirement {
+            padding: 13px;
+
+            background: #0a1726;
+
+            border: 1px solid #1d3043;
+
+            border-radius: 9px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            color: #cbd5e1;
+
+            transition: 0.25s;
+        }
+
+        .requirement.valid {
+            border-color:
+                rgba(34, 197, 94, 0.4);
+        }
+
+        .requirement.invalid {
+            border-color:
+                rgba(239, 68, 68, 0.25);
+        }
+
+        .check {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .valid .check {
+            color: #22c55e;
+        }
+
+        .invalid .check {
+            color: #ef4444;
+        }
+
+        /* =========================
+           SCORE
+        ========================= */
+
+        .score-card {
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 190px;
+            height: 190px;
+
+            margin: 15px auto 20px;
+
+            border-radius: 50%;
+
+            background:
+                conic-gradient(
+                    #38bdf8 0deg,
+                    #38bdf8 0deg,
+                    #18283a 0deg
+                );
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            position: relative;
+
+            transition: 0.8s ease;
+        }
+
+        .score-circle::before {
+            content: "";
+
+            position: absolute;
+
+            width: 158px;
+            height: 158px;
+
+            border-radius: 50%;
+
+            background: #0d1b2a;
+        }
+
+        .score-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .score {
+            font-size: 42px;
+
+            font-weight: bold;
+
+            color: #38bdf8;
+        }
+
+        .score-label {
+            color: #94a3b8;
+
+            font-size: 13px;
+        }
+
+        .strength {
+            font-size: 21px;
+
+            font-weight: bold;
+
+            color: #64748b;
+
+            transition: 0.4s;
+        }
+
+        /* =========================
+           STATS
+        ========================= */
+
+        .stats {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 10px;
+
+            margin-top: 25px;
+        }
+
+        .stat {
+            background: #0a1726;
+
+            border: 1px solid #1d3043;
+
+            border-radius: 10px;
+
+            padding: 14px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+
+            font-weight: bold;
+
+            color: #38bdf8;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+
+            font-size: 12px;
+
+            margin-top: 4px;
+        }
+
+        /* =========================
+           RECOMMENDATIONS
+        ========================= */
+
+        .recommendations {
+            margin-top: 25px;
+
+            text-align: left;
+        }
+
+        .recommendation {
+            padding: 12px;
+
+            margin-top: 8px;
+
+            background: #111f30;
+
+            border-left: 3px solid #f59e0b;
+
+            border-radius: 6px;
+
+            color: #cbd5e1;
+
+            font-size: 14px;
+        }
+
+        .safe {
+            border-left-color: #22c55e;
+        }
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        .message {
+            margin-top: 10px;
+
+            font-size: 14px;
+
+            color: #f87171;
+
+            min-height: 18px;
+        }
+
+        /* =========================
+           PRIVACY NOTICE
+        ========================= */
+
+        .notice {
+            margin-top: 24px;
+
+            padding: 14px;
+
+            border-radius: 10px;
+
+            background:
+                rgba(14, 165, 233, 0.08);
+
+            border:
+                1px solid rgba(
+                    14,
+                    165,
+                    233,
+                    0.2
+                );
+
+            color: #94a3b8;
+
+            font-size: 13px;
+
+            text-align: center;
+        }
+
+        .notice strong {
+            color: #38bdf8;
+        }
+
+        /* =========================
+           ANALYSIS HISTORY
+        ========================= */
+
+        .history-section {
+            margin-top: 28px;
+
+            background:
+                rgba(13, 27, 42, 0.92);
+
+            border: 1px solid #1d4058;
+
+            border-radius: 20px;
+
+            padding: 27px;
+
+            box-shadow:
+                0 15px 40px rgba(
+                    0,
+                    0,
+                    0,
+                    0.25
+                );
+        }
+
+        .history-header {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 20px;
+        }
+
+        .history-title {
+            font-size: 20px;
+
+            font-weight: bold;
+
+            color: #e5eef8;
+        }
+
+        .history-subtitle {
+            margin-top: 5px;
+
+            color: #64748b;
+
+            font-size: 13px;
+        }
+
+        .refresh-btn {
+            border: 1px solid #1d4058;
+
+            background: #0a1726;
+
+            color: #38bdf8;
+
+            padding: 10px 16px;
+
+            border-radius: 9px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+
+            transition: 0.25s;
+        }
+
+        .refresh-btn:hover {
+            background: #102a40;
+
+            border-color: #38bdf8;
+        }
+
+        .history-table-container {
+            overflow-x: auto;
+        }
+
+        .history-table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 700px;
+        }
+
+        .history-table th {
+            text-align: left;
+
+            padding: 14px;
+
+            background: #07111f;
+
+            color: #94a3b8;
+
+            font-size: 12px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.5px;
+        }
+
+        .history-table td {
+            padding: 14px;
+
+            border-top:
+                1px solid #1d3043;
+
+            color: #cbd5e1;
+
+            font-size: 14px;
+        }
+
+        .history-table tbody tr {
+            transition: 0.2s;
+        }
+
+        .history-table tbody tr:hover {
+            background:
+                rgba(
+                    56,
+                    189,
+                    248,
+                    0.05
+                );
+        }
+
+        .score-badge {
+            font-weight: bold;
+
+            color: #38bdf8;
+        }
+
+        .strength-badge {
+            font-weight: bold;
+        }
+
+        .very-strong {
+            color: #22c55e;
+        }
+
+        .strong {
+            color: #38bdf8;
+        }
+
+        .medium {
+            color: #f59e0b;
+        }
+
+        .weak {
+            color: #ef4444;
+        }
+
+        .loading-history {
+            text-align: center;
+
+            color: #64748b !important;
+
+            padding: 25px !important;
+        }
+
+        .history-empty {
+            text-align: center;
+
+            color: #64748b;
+
+            padding: 25px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 800px) {
+
+            .main {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+
+            .container {
+                width: 94%;
+
+                padding: 25px 0;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .history-section {
+                padding: 20px;
+            }
+
+            .history-header {
+                align-items: flex-start;
+
+                gap: 15px;
+            }
+
+            .refresh-btn {
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .requirement-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .score-circle {
+                width: 165px;
+                height: 165px;
+            }
+
+            .score-circle::before {
+                width: 137px;
+                height: 137px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <div class="header">
+
+        <div class="logo">
+            🔐
+        </div>
+
+        <h1>
+            Password Security Analyzer
+        </h1>
+
+        <p class="subtitle">
+            Analyze your password strength and improve your security.
+        </p>
+
+    </div>
+
+
+    <!-- =========================
+         MAIN ANALYZER
+    ========================= -->
+
+    <div class="main">
+
+
+        <!-- LEFT CARD -->
+
+        <div class="card">
+
+            <div class="card-title">
+                Enter Your Password
+            </div>
+
+
+            <div class="password-box">
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter password"
+                    oninput="liveCheck()"
+                >
+
+                <button
+                    type="button"
+                    onclick="togglePassword()">
+
+                    👁
+
+                </button>
+
+            </div>
+
+
+            <button
+                class="analyze-btn"
+                id="analyzeButton"
+                onclick="analyzePassword()">
+
+                ANALYZE PASSWORD
+
+            </button>
+
+
+            <div
+                class="message"
+                id="message">
+            </div>
+
+
+            <!-- SECURITY REQUIREMENTS -->
+
+            <div class="requirements">
+
+                <div class="card-title">
+                    Security Requirements
+                </div>
+
+
+                <div class="requirement-grid">
+
+
+                    <div
+                        class="requirement"
+                        id="lengthBox">
+
+                        <span>
+                            8+ Characters
+                        </span>
+
+                        <span
+                            class="check"
+                            id="length">
+
+                            —
+
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="requirement"
+                        id="uppercaseBox">
+
+                        <span>
+                            Uppercase
+                        </span>
+
+                        <span
+                            class="check"
+                            id="uppercase">
+
+                            —
+
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="requirement"
+                        id="lowercaseBox">
+
+                        <span>
+                            Lowercase
+                        </span>
+
+                        <span
+                            class="check"
+                            id="lowercase">
+
+                            —
+
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="requirement"
+                        id="numberBox">
+
+                        <span>
+                            Number
+                        </span>
+
+                        <span
+                            class="check"
+                            id="number">
+
+                            —
+
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="requirement"
+                        id="specialBox">
+
+                        <span>
+                            Special Character
+                        </span>
+
+                        <span
+                            class="check"
+                            id="special">
+
+                            —
+
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="requirement"
+                        id="repeatBox">
+
+                        <span>
+                            Repeated Pattern
+                        </span>
+
+                        <span
+                            class="check"
+                            id="repeat">
+
+                            —
+
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="requirement"
+                        id="sequenceBox">
+
+                        <span>
+                            Sequential Pattern
+                        </span>
+
+                        <span
+                            class="check"
+                            id="sequence">
+
+                            —
+
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="requirement"
+                        id="commonBox">
+
+                        <span>
+                            Common Password
+                        </span>
+
+                        <span
+                            class="check"
+                            id="common">
+
+                            —
+
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- PRIVACY -->
+
+            <div class="notice">
+
+                🔒
+
+                <strong>
+                    Privacy:
+                </strong>
+
+                Your actual password is never stored
+                in the database.
+
+            </div>
+
+        </div>
+
+
+
+        <!-- RIGHT CARD -->
+
+        <div class="card score-card">
+
+
+            <div class="card-title">
+                Security Score
+            </div>
+
+
+            <div
+                class="score-circle"
+                id="scoreCircle">
+
+
+                <div class="score-content">
+
+                    <div
+                        class="score"
+                        id="score">
+
+                        —
+
+                    </div>
+
+                    <div class="score-label">
+
+                        out of 100
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="strength"
+                id="strength">
+
+                READY TO ANALYZE
+
+            </div>
+
+
+            <!-- STATS -->
+
+            <div class="stats">
+
+
+                <div class="stat">
+
+                    <div
+                        class="stat-value"
+                        id="lengthValue">
+
+                        —
+
+                    </div>
+
+                    <div class="stat-label">
+
+                        Characters
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div
+                        class="stat-value"
+                        id="typeValue">
+
+                        —
+
+                    </div>
+
+                    <div class="stat-label">
+
+                        Character Types
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- RECOMMENDATIONS -->
+
+            <div class="recommendations">
+
+                <div class="card-title">
+
+                    Security Recommendations
+
+                </div>
+
+
+                <div id="recommendationList">
+
+                    <div class="recommendation safe">
+
+                        🔒 Enter a password to begin
+                        security analysis.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         ANALYSIS HISTORY
+    ========================= -->
+
+    <div class="history-section">
+
+
+        <div class="history-header">
+
+
+            <div>
+
+                <div class="history-title">
+
+                    📊 Analysis History
+
+                </div>
+
+                <div class="history-subtitle">
+
+                    Previous password security
+                    analysis results
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="refresh-btn"
+                onclick="loadHistory()">
+
+                ↻ Refresh
+
+            </button>
+
+
+        </div>
+
+
+        <div class="history-table-container">
+
+
+            <table class="history-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            Score
+                        </th>
+
+                        <th>
+                            Strength
+                        </th>
+
+                        <th>
+                            Length
+                        </th>
+
+                        <th>
+                            Types
+                        </th>
+
+                        <th>
+                            Analyzed At
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="historyBody">
+
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="loading-history">
+
+                            Loading analysis history...
+
+                        </td>
+
+                    </tr>
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+/* =========================
+   PASSWORD INPUT
+========================= */
+
+const passwordInput =
+    document.getElementById("password");
+
+
+function togglePassword() {
+
+    passwordInput.type =
+        passwordInput.type === "password"
+            ? "text"
+            : "password";
+
+}
+
+
+/* =========================
+   LIVE CHECK
+========================= */
+
+function liveCheck() {
+
+    const password =
+        passwordInput.value;
+
+
+    if (!password) {
+
+        resetChecks();
+
+        return;
+
+    }
+
+
+    updateCheck(
+        "length",
+        "lengthBox",
+        password.length >= 8
+    );
+
+
+    updateCheck(
+        "uppercase",
+        "uppercaseBox",
+        /[A-Z]/.test(password)
+    );
+
+
+    updateCheck(
+        "lowercase",
+        "lowercaseBox",
+        /[a-z]/.test(password)
+    );
+
+
+    updateCheck(
+        "number",
+        "numberBox",
+        /\d/.test(password)
+    );
+
+
+    updateCheck(
+        "special",
+        "specialBox",
+        /[^a-zA-Z0-9]/.test(password)
+    );
+
+
+    updateCheck(
+        "repeat",
+        "repeatBox",
+        !/(.)\1\1/.test(password)
+    );
+
+
+    updateCheck(
+        "sequence",
+        "sequenceBox",
+        !hasSequence(password)
+    );
+
+
+    updateCheck(
+        "common",
+        "commonBox",
+        !isCommon(password)
+    );
+
+}
+
+
+/* =========================
+   UPDATE CHECK
+========================= */
+
+function updateCheck(
+    id,
+    boxId,
+    valid
+) {
+
+    const element =
+        document.getElementById(id);
+
+
+    const box =
+        document.getElementById(boxId);
+
+
+    element.textContent =
+        valid ? "✓" : "✗";
+
+
+    box.classList.remove(
+        "valid",
+        "invalid"
+    );
+
+
+    box.classList.add(
+        valid
+            ? "valid"
+            : "invalid"
+    );
+
+}
+
+
+/* =========================
+   SEQUENCE CHECK
+========================= */
+
+function hasSequence(password) {
+
+    const p =
+        password.toLowerCase();
+
+
+    const patterns = [
+
+        "1234",
+        "2345",
+        "3456",
+        "4567",
+        "5678",
+        "6789",
+
+        "abcd",
+        "bcde",
+        "cdef",
+        "defg",
+        "efgh",
+
+        "qwer"
+
+    ];
+
+
+    return patterns.some(
+        pattern =>
+            p.includes(pattern)
+    );
+
+}
+
+
+/* =========================
+   COMMON PASSWORD CHECK
+========================= */
+
+function isCommon(password) {
+
+    const common = [
+
+        "password",
+        "123456",
+        "12345678",
+        "qwerty",
+        "admin",
+        "letmein",
+        "welcome",
+        "password123",
+        "admin123"
+
+    ];
+
+
+    return common.includes(
+        password.toLowerCase()
+    );
+
+}
+
+
+/* =========================
+   RESET CHECKS
+========================= */
+
+function resetChecks() {
+
+
+    const ids = [
+
+        "length",
+        "uppercase",
+        "lowercase",
+        "number",
+        "special",
+        "repeat",
+        "sequence",
+        "common"
+
+    ];
+
+
+    ids.forEach(id => {
+
+        document
+            .getElementById(id)
+            .textContent = "—";
+
+    });
+
+
+    document
+        .querySelectorAll(".requirement")
+        .forEach(box => {
+
+            box.classList.remove(
+                "valid",
+                "invalid"
+            );
+
+        });
+
+
+    document
+        .getElementById("score")
+        .textContent = "—";
+
+
+    document
+        .getElementById("strength")
+        .textContent =
+            "READY TO ANALYZE";
+
+
+    document
+        .getElementById("strength")
+        .style.color =
+            "#64748b";
+
+
+    document
+        .getElementById("lengthValue")
+        .textContent = "—";
+
+
+    document
+        .getElementById("typeValue")
+        .textContent = "—";
+
+
+    document
+        .getElementById("recommendationList")
+        .innerHTML =
+
+        '<div class="recommendation safe">' +
+
+        '🔒 Enter a password to begin security analysis.' +
+
+        '</div>';
+
+
+    document
+        .getElementById("scoreCircle")
+        .style.background =
+
+        "conic-gradient(" +
+
+        "#18283a 0deg, " +
+
+        "#18283a 360deg" +
+
+        ")";
+
+}
+
+
+/* =========================
+   ANALYZE PASSWORD
+========================= */
+
+async function analyzePassword() {
+
+
+    const password =
+        passwordInput.value;
+
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+
+    const button =
+        document.getElementById(
+            "analyzeButton"
+        );
+
+
+    if (!password) {
+
+        message.textContent =
+            "Please enter a password.";
+
+        return;
+
+    }
+
+
+    button.disabled = true;
+
+    button.textContent =
+        "ANALYZING...";
+
+
+    message.textContent = "";
+
+
+    try {
+
+
+        const response =
+            await fetch(
+                "/api/password/analyze",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            password:
+                                password
+                        })
+
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Analysis failed"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        displayResult(data);
+
+
+        /*
+
+           Refresh history after
+           successful analysis.
+
+        */
+
+        loadHistory();
+
+
+    } catch (error) {
+
+
+        message.textContent =
+            "Unable to connect to the server. " +
+            "Make sure Spring Boot is running.";
+
+    } finally {
+
+
+        button.disabled = false;
+
+        button.textContent =
+            "ANALYZE PASSWORD";
+
+    }
+
+}
+
+
+/* =========================
+   DISPLAY RESULT
+========================= */
+
+function displayResult(data) {
+
+
+    const score =
+        data.score;
+
+
+    document
+        .getElementById("score")
+        .textContent =
+            score;
+
+
+    document
+        .getElementById("strength")
+        .textContent =
+            data.strength;
+
+
+    document
+        .getElementById("lengthValue")
+        .textContent =
+            data.length;
+
+
+    let types = 0;
+
+
+    if (data.hasUppercase)
+        types++;
+
+
+    if (data.hasLowercase)
+        types++;
+
+
+    if (data.hasNumber)
+        types++;
+
+
+    if (data.hasSpecial)
+        types++;
+
+
+    document
+        .getElementById("typeValue")
+        .textContent =
+            types + "/4";
+
+
+    updateCheck(
+        "length",
+        "lengthBox",
+        data.length >= 8
+    );
+
+
+    updateCheck(
+        "uppercase",
+        "uppercaseBox",
+        data.hasUppercase
+    );
+
+
+    updateCheck(
+        "lowercase",
+        "lowercaseBox",
+        data.hasLowercase
+    );
+
+
+    updateCheck(
+        "number",
+        "numberBox",
+        data.hasNumber
+    );
+
+
+    updateCheck(
+        "special",
+        "specialBox",
+        data.hasSpecial
+    );
+
+
+    updateCheck(
+        "repeat",
+        "repeatBox",
+        !data.repeatedCharacters
+    );
+
+
+    updateCheck(
+        "sequence",
+        "sequenceBox",
+        !data.sequentialPattern
+    );
+
+
+    updateCheck(
+        "common",
+        "commonBox",
+        !data.commonPassword
+    );
+
+
+    let color;
+
+
+    if (score >= 90) {
+
+        color = "#22c55e";
+
+    } else if (score >= 70) {
+
+        color = "#38bdf8";
+
+    } else if (score >= 40) {
+
+        color = "#f59e0b";
+
+    } else {
+
+        color = "#ef4444";
+
+    }
+
+
+    document
+        .getElementById("score")
+        .style.color =
+            color;
+
+
+    document
+        .getElementById("strength")
+        .style.color =
+            color;
+
+
+    const degrees =
+        score * 3.6;
+
+
+    document
+        .getElementById("scoreCircle")
+        .style.background =
+
+        `conic-gradient(
+
+            ${color} 0deg,
+
+            ${color} ${degrees}deg,
+
+            #18283a ${degrees}deg,
+
+            #18283a 360deg
+
+        )`;
+
+
+    const list =
+        document.getElementById(
+            "recommendationList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    if (
+        !data.recommendations ||
+        data.recommendations.length === 0
+    ) {
+
+
+        list.innerHTML =
+
+            '<div class="recommendation safe">' +
+
+            '✓ Excellent! No major security recommendations.' +
+
+            '</div>';
+
+
+    } else {
+
+
+        data.recommendations.forEach(
+            recommendation => {
+
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                div.className =
+                    "recommendation";
+
+
+                div.textContent =
+                    "⚠ " +
+                    recommendation;
+
+
+                list.appendChild(div);
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================
+   LOAD ANALYSIS HISTORY
+========================= */
+
+async function loadHistory() {
+
+
+    const historyBody =
+        document.getElementById(
+            "historyBody"
+        );
+
+
+    historyBody.innerHTML = `
+
+        <tr>
+
+            <td
+                colspan="6"
+                class="loading-history">
+
+                Loading analysis history...
+
+            </td>
+
+        </tr>
+
+    `;
+
+
+    try {
+
+
+        const response =
+            await fetch(
+                "/api/password/history"
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Failed to load history"
+            );
+
+        }
+
+
+        const history =
+            await response.json();
+
+
+        if (history.length === 0) {
+
+
+            historyBody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="history-empty">
+
+                        No analysis records found.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            return;
+
+        }
+
+
+        historyBody.innerHTML = "";
+
+
+        history.forEach(item => {
+
+
+            let types = 0;
+
+
+            if (item.hasUppercase)
+                types++;
+
+
+            if (item.hasLowercase)
+                types++;
+
+
+            if (item.hasNumber)
+                types++;
+
+
+            if (item.hasSpecial)
+                types++;
+
+
+            const strengthClass =
+
+                item.strength
+                    .toLowerCase()
+                    .replace(
+                        " ",
+                        "-"
+                    );
+
+
+            const date =
+                new Date(
+                    item.analyzedAt
+                );
+
+
+            const formattedDate =
+
+                date.toLocaleString(
+                    "en-IN",
+                    {
+                        dateStyle:
+                            "medium",
+
+                        timeStyle:
+                            "short"
+                    }
+                );
+
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${item.id}
+                </td>
+
+                <td>
+
+                    <span
+                        class="score-badge">
+
+                        ${item.score}/100
+
+                    </span>
+
+                </td>
+
+                <td>
+
+                    <span
+                        class="strength-badge ${strengthClass}">
+
+                        ${item.strength}
+
+                    </span>
+
+                </td>
+
+                <td>
+                    ${item.length}
+                </td>
+
+                <td>
+                    ${types}/4
+                </td>
+
+                <td>
+                    ${formattedDate}
+                </td>
+
+            `;
+
+
+            historyBody.appendChild(
+                row
+            );
+
+        });
+
+
+    } catch (error) {
+
+
+        historyBody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="6"
+                    class="history-empty">
+
+                    Unable to load analysis history.
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================
+   INITIAL HISTORY LOAD
+========================= */
+
+loadHistory();
+
+
+</script>
+
+
+</body>
+
+</html>
